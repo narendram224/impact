@@ -1,0 +1,69 @@
+{
+  "brand": "Gap",
+  "pcdWeeks": 2,
+  "strategyWeeks": 6,
+  "histPastWeeks": 10,
+  "histFwdWeeks": 10,
+  "baseRows": [
+    {"id":"r1",  "dept":"Dresses",    "cls":"Casual Dresses",    "style":"STY-4821", "name":"Floral Midi Dress",        "channel":"Store", "ros":18, "wos":6,  "age":5,  "price":68,  "elasticity":1.7, "confidence":82, "fin":[20,35,50], "ia":[20,35,50]},
+    {"id":"r2",  "dept":"Dresses",    "cls":"Casual Dresses",    "style":"STY-4821", "name":"Floral Midi Dress",        "channel":"Ecomm", "ros":26, "wos":4,  "age":4,  "price":68,  "elasticity":1.8, "confidence":88, "fin":[15,30,45], "ia":[15,30,45]},
+    {"id":"r3",  "dept":"Dresses",    "cls":"Casual Dresses",    "style":"STY-4835", "name":"Wrap Dress — Solid",       "channel":"Store", "ros":9,  "wos":11, "age":9,  "price":64,  "elasticity":1.4, "confidence":70, "fin":[30,45,60], "ia":[30,45,60]},
+    {"id":"r4",  "dept":"Dresses",    "cls":"Casual Dresses",    "style":"STY-4835", "name":"Wrap Dress — Solid",       "channel":"Ecomm", "ros":14, "wos":8,  "age":7,  "price":64,  "elasticity":1.5, "confidence":75, "fin":[25,40,55], "ia":[25,40,55]},
+    {"id":"r5",  "dept":"Dresses",    "cls":"Occasion Dresses",  "style":"STY-4902", "name":"Sequin Cocktail Dress",    "channel":"Store", "ros":4,  "wos":18, "age":14, "price":132, "elasticity":0.5, "confidence":45, "fin":[35,50,65], "ia":[35,50,65]},
+    {"id":"r6",  "dept":"Dresses",    "cls":"Occasion Dresses",  "style":"STY-4902", "name":"Sequin Cocktail Dress",    "channel":"Ecomm", "ros":6,  "wos":14, "age":12, "price":132, "elasticity":0.55,"confidence":50, "fin":[30,45,60], "ia":[25,35,50]},
+    {"id":"r7",  "dept":"Denim",      "cls":"Skinny Denim",      "style":"STY-5011", "name":"High-Rise Skinny",         "channel":"Store", "ros":22, "wos":5,  "age":4,  "price":78,  "elasticity":1.9, "confidence":90, "fin":[15,25,35], "ia":[15,25,35]},
+    {"id":"r8",  "dept":"Denim",      "cls":"Skinny Denim",      "style":"STY-5011", "name":"High-Rise Skinny",         "channel":"Ecomm", "ros":31, "wos":3,  "age":3,  "price":78,  "elasticity":2.0, "confidence":92, "fin":[10,15,25], "ia":[10,15,25]},
+    {"id":"r9",  "dept":"Denim",      "cls":"Skinny Denim",      "style":"STY-5028", "name":"Cropped Skinny",           "channel":"Store", "ros":12, "wos":9,  "age":8,  "price":76,  "elasticity":1.6, "confidence":80, "fin":[25,35,50], "ia":[25,35,50]},
+    {"id":"r10", "dept":"Denim",      "cls":"Skinny Denim",      "style":"STY-5028", "name":"Cropped Skinny",           "channel":"Ecomm", "ros":17, "wos":6,  "age":5,  "price":76,  "elasticity":1.7, "confidence":84, "fin":[20,30,45], "ia":[20,30,45]},
+    {"id":"r11", "dept":"Denim",      "cls":"Wide-Leg Denim",    "style":"STY-5104", "name":"Wide-Leg Trouser Jean",    "channel":"Store", "ros":8,  "wos":13, "age":10, "price":84,  "elasticity":1.0, "confidence":60, "fin":[30,45,55], "ia":[30,45,55]},
+    {"id":"r12", "dept":"Denim",      "cls":"Wide-Leg Denim",    "style":"STY-5104", "name":"Wide-Leg Trouser Jean",    "channel":"Ecomm", "ros":13, "wos":8,  "age":7,  "price":84,  "elasticity":1.1, "confidence":63, "fin":[20,35,50], "ia":[25,40,55]},
+    {"id":"r13", "dept":"Outerwear",  "cls":"Lightweight Jackets","style":"STY-6210","name":"Bomber Jacket",            "channel":"Store", "ros":6,  "wos":16, "age":13, "price":148, "elasticity":1.2, "confidence":58, "fin":[35,50,65], "ia":[40,55,70]},
+    {"id":"r14", "dept":"Outerwear",  "cls":"Lightweight Jackets","style":"STY-6210","name":"Bomber Jacket",            "channel":"Ecomm", "ros":9,  "wos":11, "age":9,  "price":148, "elasticity":1.3, "confidence":62, "fin":[25,40,55], "ia":[20,30,45]},
+    {"id":"r15", "dept":"Outerwear",  "cls":"Lightweight Jackets","style":"STY-6233","name":"Denim Jacket — Classic",   "channel":"Store", "ros":14, "wos":7,  "age":6,  "price":138, "elasticity":1.4, "confidence":68, "fin":[15,25,40], "ia":[15,25,40]},
+    {"id":"r16", "dept":"Outerwear",  "cls":"Lightweight Jackets","style":"STY-6233","name":"Denim Jacket — Classic",   "channel":"Ecomm", "ros":19, "wos":5,  "age":4,  "price":138, "elasticity":1.45,"confidence":72, "fin":[10,15,20], "ia":[10,15,20]},
+    {"id":"r17", "dept":"Outerwear",  "cls":"Heavy Jackets",      "style":"STY-6301","name":"Puffer Vest",              "channel":"Store", "ros":4,  "wos":24, "age":18, "price":168, "elasticity":0.5, "confidence":40, "fin":[40,55,70], "ia":[40,55,70]},
+    {"id":"r18", "dept":"Outerwear",  "cls":"Heavy Jackets",      "style":"STY-6301","name":"Puffer Vest",              "channel":"Ecomm", "ros":7,  "wos":15, "age":12, "price":168, "elasticity":0.55,"confidence":44, "fin":[35,50,65], "ia":[30,45,55]}
+  ],
+  "styleMeta": {
+    "STY-4821": { "division": "Women's Apparel",         "subclass": "Printed",     "programRetail": "Retail Core",      "programOnline": "Online Core",      "ccs": [["CC-4821-IND","Indigo Floral"], ["CC-4821-BLK","Black Floral"], ["CC-4821-SGE","Sage Floral"]] },
+    "STY-4835": { "division": "Women's Apparel",         "subclass": "Solid",       "programRetail": "Retail Core",      "programOnline": "Online Core",      "ccs": [["CC-4835-NVY","True Navy"], ["CC-4835-CRM","Cream"], ["CC-4835-RST","Rust"]] },
+    "STY-4902": { "division": "Women's Apparel",         "subclass": "Embellished", "programRetail": "Retail Exclusive", "programOnline": "Online Core",      "ccs": [["CC-4902-CHM","Champagne"], ["CC-4902-ONX","Onyx"]] },
+    "STY-5011": { "division": "Denim & Casual",          "subclass": "High-Rise",   "programRetail": "Retail Core",      "programOnline": "Online Core",      "ccs": [["CC-5011-DKW","Dark Wash"], ["CC-5011-MDW","Medium Wash"], ["CC-5011-BLK","Washed Black"]] },
+    "STY-5028": { "division": "Denim & Casual",          "subclass": "Cropped",     "programRetail": "Retail Core",      "programOnline": "Online Core",      "ccs": [["CC-5028-LTW","Light Wash"], ["CC-5028-ECR","Ecru"]] },
+    "STY-5104": { "division": "Denim & Casual",          "subclass": "Trouser",     "programRetail": "Retail Core",      "programOnline": "Online Exclusive", "ccs": [["CC-5104-RAW","Raw Indigo"], ["CC-5104-STN","Stone"], ["CC-5104-BLK","Black"]] },
+    "STY-6210": { "division": "Outerwear & Cold Weather","subclass": "Bomber",      "programRetail": "Retail Core",      "programOnline": "Online Core",      "ccs": [["CC-6210-OLV","Olive"], ["CC-6210-BLK","Black"], ["CC-6210-NVY","Navy"]] },
+    "STY-6233": { "division": "Outerwear & Cold Weather","subclass": "Trucker",     "programRetail": "Retail Core",      "programOnline": "Online Exclusive", "ccs": [["CC-6233-MDW","Medium Wash"], ["CC-6233-ECR","Ecru"]] },
+    "STY-6301": { "division": "Outerwear & Cold Weather","subclass": "Vest",        "programRetail": "Retail Exclusive", "programOnline": "Online Core",      "ccs": [["CC-6301-BLK","Black"], ["CC-6301-KHK","Khaki"], ["CC-6301-BRY","Berry"]] }
+  },
+  "strategyInfo": {
+    "name": "Fall Clearance — Outerwear & Denim",
+    "startDate": "10/02/2026",
+    "endDate": "11/13/2026",
+    "days": 42,
+    "lockedFilters": {
+      "country": "United States",
+      "brand": "Gap",
+      "currency": "USD"
+    }
+  },
+  "hierarchyOptions": {
+    "product": [
+      { "id": "brand", "label": "Brand", "enabled": true },
+      { "id": "division", "label": "Division", "enabled": true },
+      { "id": "department", "label": "Department", "enabled": true },
+      { "id": "class", "label": "Class", "enabled": true },
+      { "id": "subclass", "label": "Sub Class", "enabled": true },
+      { "id": "style", "label": "Style", "enabled": true },
+      { "id": "programRetail", "label": "Program Retail", "enabled": true },
+      { "id": "programOnline", "label": "Program Online", "enabled": true },
+      { "id": "customerChoice", "label": "Customer Choice", "enabled": true }
+    ],
+    "store": [
+      { "id": "all", "label": "All Stores", "enabled": true },
+      { "id": "channel", "label": "Enterprise Channel", "enabled": true },
+      { "id": "store", "label": "Store", "enabled": true }
+    ]
+  },
+  "channelOptions": ["Store", "Ecomm"],
+  "storeIdOptions": ["ST-1042", "ST-1077", "ST-1129", "ST-2003", "ST-2056"]
+}

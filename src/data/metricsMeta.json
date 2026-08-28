@@ -1,0 +1,89 @@
+{
+  "metrics": {
+    "stPct": { "label": "Sell-Through % (Projected)", "format": "percent" },
+    "eopUnits": { "label": "Inventory (EOP Units)", "format": "number" },
+    "ros": { "label": "Rate of Sale (units/wk)", "format": "decimal" },
+    "wos": { "label": "Weeks of Supply", "format": "decimal" },
+    "ageWeeks": { "label": "Age of Inventory (Weeks)", "format": "weeks" }
+  },
+  "bandMeta": {
+    "low": { "label": "Low discount", "range": "< 20%", "color": "var(--c-primary-200)" },
+    "medium": { "label": "Medium discount", "range": "20% – 50%", "color": "var(--c-primary-500)" },
+    "high": { "label": "High discount", "range": "50%+", "color": "var(--c-primary-700)" }
+  },
+  "elasticityMeta": {
+    "low": { "label": "Low elasticity", "range": "< 0.6x" },
+    "medium": { "label": "Medium elasticity", "range": "0.6x – 1.5x" },
+    "high": { "label": "High elasticity", "range": "≥ 1.5x" }
+  },
+  "rightBenchmarkMeta": {
+    "basePrice": {
+      "group": "price",
+      "label": "Base price",
+      "fullLabel": "Base price — regular ticket",
+      "scale": "$",
+      "color": "#64748B",
+      "dash": "5 4",
+      "width": 1.75
+    },
+    "sp": {
+      "group": "price",
+      "label": "SP",
+      "fullLabel": "SP — planned selling price",
+      "scale": "$",
+      "color": "#E08528",
+      "dash": "9 4",
+      "width": 2.25
+    },
+    "aur": {
+      "group": "price",
+      "label": "AUR",
+      "fullLabel": "AUR — Avg. Unit Retail (realized)",
+      "scale": "$",
+      "color": "#4259EE",
+      "dash": "",
+      "width": 2.75
+    },
+    "aum": {
+      "group": "price",
+      "label": "AUM",
+      "fullLabel": "AUM — Avg. Unit Margin (realized)",
+      "scale": "$",
+      "color": "#3BB273",
+      "dash": "",
+      "width": 2.25
+    },
+    "auc": {
+      "group": "cost",
+      "label": "AUC",
+      "fullLabel": "AUC — Avg. Unit Cost (blended)",
+      "scale": "$",
+      "color": "#0E8F8C",
+      "dash": "",
+      "width": 2.25
+    },
+    "costPrice": {
+      "group": "cost",
+      "label": "Cost price",
+      "fullLabel": "Cost price — vendor invoice cost",
+      "scale": "$",
+      "color": "#E1BC29",
+      "dash": "7 4",
+      "width": 2
+    },
+    "weightedAvg": {
+      "group": "discount",
+      "label": "Weighted Avg",
+      "fullLabel": "Weighted Avg. Discount %",
+      "scale": "%",
+      "color": "#7C4DD1",
+      "dash": "",
+      "width": 2.25
+    }
+  },
+  "rightAxisCategories": {
+    "price": { "label": "Price $", "scale": "$", "axisLabel": "Price $", "defaultLines": ["basePrice", "sp", "aur", "aum"] },
+    "cost": { "label": "Cost $", "scale": "$", "axisLabel": "Cost $", "defaultLines": ["auc", "costPrice"] },
+    "discount": { "label": "Discount %", "scale": "%", "axisLabel": "Discount %", "defaultLines": ["weightedAvg"] }
+  }
+}
