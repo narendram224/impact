@@ -26,17 +26,19 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: |
+          set -euo pipefail
+          npm ci --legacy-peer-deps
+          npm install --no-save --legacy-peer-deps \
+            @rolldown/binding-linux-x64-gnu@1.2.6 \
+            @rolldown/binding-linux-x64-musl@1.2.6
+          ls -la node_modules/@rolldown
 
       - name: Build
         env:
           NODE_OPTIONS: --max-old-space-size=4096
         run: |
           set -euo pipefail
-          echo "Platform bindings:"
-          ls node_modules/@rolldown 2>/dev/null || true
-          # Skip tsc in CI — prior runs failed in the Build step in ~5s;
-          # Vite already type-strips/transpiles for production.
           npx vite build
           cp dist/index.html dist/404.html
           ls -la dist
