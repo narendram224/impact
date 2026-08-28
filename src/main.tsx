@@ -12,7 +12,7 @@ ModuleRegistry.registerModules([AllCommunityModule, AllEnterpriseModule]);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/impact">
       <App />
     </BrowserRouter>
   </StrictMode>
