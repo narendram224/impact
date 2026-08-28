@@ -19,13 +19,13 @@ import {
 } from 'recharts';
 import { ImpactSelect } from '../../../common/ImpactSelect';
 import { useExplainabilityStore } from '../../../../store/useExplainabilityStore';
-import { aggregateHistory, formatUnits } from '../../../../services/dataProcessor';
+import { aggregateHistory, bucketSeries, formatUnits, STRATEGY_WEEKS, PCD_WEEKS } from '../../../../services/dataProcessor';
 import {
   TIMELINE_OPTIONS,
   RIGHT_AXIS_OPTIONS,
   BENCHMARK_OPTIONS,
 } from '../constants';
-import type { EnrichedRow, BenchmarkLineKey } from '../../../../types';
+import type { EnrichedRow, BenchmarkLineKey, TimelineGranularity } from '../../../../types';
 
 interface HistoricalPerformanceProps {
   enrichedRows: EnrichedRow[];
@@ -215,14 +215,24 @@ export function HistoricalPerformance({
     return aggregateHistory(displayRows, 'ia');
   }, [displayRows]);
 
+  const finDisplay = useMemo(
+    () => bucketSeries(finHistory, histTimeline),
+    [finHistory, histTimeline]
+  );
+
+  const iaDisplay = useMemo(
+    () => bucketSeries(iaHistory, histTimeline),
+    [iaHistory, histTimeline]
+  );
+
   const chartData = useMemo(() => {
-    if (!finHistory.length) return [];
-    return finHistory.map((pt, idx) => {
-      const ia = iaHistory[idx];
+    if (!finDisplay.length) return [];
+    return finDisplay.map((pt, idx) => {
+      const ia = iaDisplay[idx];
       return {
         ...pt,
         aum: pt.sellingPrice - pt.auc,
-        weekLabel: `Week ${idx + 1}`,
+        weekLabel: pt.label ?? `Week ${idx + 1}`,
         // Forecast paths only from strategy start (week >= 0) — matches HTML
         finPath: pt.week >= 0 ? pt.totalUnits : null,
         iaPath: pt.week >= 0 && ia ? ia.totalUnits : null,
@@ -235,18 +245,53 @@ export function HistoricalPerformance({
         lySp: pt.sp * 0.97,
       };
     });
-  }, [finHistory, iaHistory]);
+  }, [finDisplay, iaDisplay]);
 
   const strategyLabels = useMemo(() => {
-    const start = chartData.find((d) => d.week === 0)?.weekLabel;
-    const end = chartData.find((d) => d.week === 6)?.weekLabel;
+    const idxOfWeek = (w: number) => chartData.findIndex((d) => d.week >= w);
+    const startIdx = idxOfWeek(0);
+    const endIdx = idxOfWeek(STRATEGY_WEEKS);
+    const start = startIdx >= 0 ? chartData[startIdx]?.weekLabel : undefined;
+    const end =
+      endIdx >= 0
+        ? chartData[endIdx]?.weekLabel
+        : chartData[chartData.length - 1]?.weekLabel;
     const pcd = [0, 1, 2].map((k) => {
-      const a = chartData.find((d) => d.week === k * 2)?.weekLabel;
-      const b = chartData.find((d) => d.week === (k + 1) * 2)?.weekLabel;
-      return { start: a, end: b, label: `PCD${k + 1}`, k };
+      const aIdx = idxOfWeek(k * PCD_WEEKS);
+      const bIdx = idxOfWeek((k + 1) * PCD_WEEKS);
+      return {
+        start: aIdx >= 0 ? chartData[aIdx]?.weekLabel : undefined,
+        end: bIdx >= 0 ? chartData[bIdx]?.weekLabel : undefined,
+        label: `PCD${k + 1}`,
+        k,
+      };
     });
     return { start, end, pcd };
   }, [chartData]);
+
+  const timelineAxisLabel = useMemo(() => {
+    const meta: Record<
+      TimelineGranularity,
+      { x: string; xLy: string; y: string }
+    > = {
+      weekly: {
+        x: 'Weeks from strategy start (10/02/2026)',
+        xLy: 'Last year — same weeks (calendar-aligned)',
+        y: 'Units / week',
+      },
+      monthly: {
+        x: 'Months from strategy start (4-wk · 10/02/2026)',
+        xLy: 'Last year — same months (calendar-aligned)',
+        y: 'Units / week (avg)',
+      },
+      quarterly: {
+        x: 'Quarters from strategy start (13-wk · 10/02/2026)',
+        xLy: 'Last year — same quarters (calendar-aligned)',
+        y: 'Units / week (avg)',
+      },
+    };
+    return meta[histTimeline];
+  }, [histTimeline]);
 
   const categoryBenchmarks = useMemo(
     () => BENCHMARK_OPTIONS.filter((opt) => opt.group === histRightCategory),
@@ -386,12 +431,10 @@ export function HistoricalPerformance({
       >
         <div className="hist-plot-overlay" aria-hidden>
           <span className="axis-label-x">
-            {isLy
-              ? 'Last year — same weeks (calendar-aligned)'
-              : 'Weeks from strategy start (10/02/2026)'}
+            {isLy ? timelineAxisLabel.xLy : timelineAxisLabel.x}
           </span>
           <span className="axis-label-y axis-label-y--left">
-            {isLy ? 'LY Units / week' : 'Units / week'}
+            {isLy ? `LY ${timelineAxisLabel.y}` : timelineAxisLabel.y}
           </span>
           <span className="axis-label-y axis-label-y--right">
             {isLy ? `LY ${rightAxisLabel}` : rightAxisLabel}
@@ -478,6 +521,11 @@ export function HistoricalPerformance({
                 return (
                   <div className="chart-tooltip">
                     <div className="chart-tooltip__title">{label}</div>
+                    {payload[0]?.payload?.offsetLabel ? (
+                      <div className="chart-tooltip__sub">
+                        {payload[0].payload.offsetLabel}
+                      </div>
+                    ) : null}
                     {payload
                       .filter(
                         (e) =>

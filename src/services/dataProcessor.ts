@@ -11,6 +11,7 @@ import type {
   StoreLevel,
   Perspective,
   KPIValues,
+  TimelineGranularity,
 } from '../types';
 
 // Constants
@@ -667,6 +668,95 @@ export function aggregateHistory(
     };
   });
 }
+
+/**
+ * Roll a weekly series into coarser display buckets (Timeline dropdown).
+ * Matches the HTML prototype: Monthly = 4 weeks, Quarterly = 13 weeks.
+ * Units are averaged (per-week) so left-axis benchmarks stay comparable.
+ * Buckets never straddle week 0 (actuals / strategy start / forecast).
+ */
+export function bucketSeries(
+  series: HistoryPoint[],
+  granularity: TimelineGranularity
+): HistoryPoint[] {
+  const width =
+    granularity === 'monthly' ? 4 : granularity === 'quarterly' ? 13 : 1;
+  const unit =
+    granularity === 'monthly'
+      ? 'Month'
+      : granularity === 'quarterly'
+        ? 'Quarter'
+        : 'Week';
+
+  const offsetOf = (p: HistoryPoint) =>
+    p.week === 0
+      ? 'strategy start'
+      : p.week < 0
+        ? `${Math.abs(p.week)} wk before start`
+        : `${p.week} wk after start`;
+
+  if (width === 1) {
+    return series.map((p, i) => ({
+      ...p,
+      label: `${unit} ${i + 1}`,
+      offsetLabel: offsetOf(p),
+      spanWeeks: 1,
+    }));
+  }
+
+  const roll = (items: HistoryPoint[]): HistoryPoint => {
+    const avg = (f: (p: HistoryPoint) => number) =>
+      items.reduce((a, p) => a + f(p), 0) / items.length;
+    const wTotal = items.reduce((a, p) => a + (p.totalUnits || 1), 0) || 1;
+    const wAvg = (f: (p: HistoryPoint) => number) =>
+      items.reduce((a, p) => a + f(p) * (p.totalUnits || 1), 0) / wTotal;
+    const last = items[items.length - 1];
+    return {
+      week: last.week,
+      isForecast: last.isForecast,
+      baselineUnits: avg((p) => p.baselineUnits),
+      liftUnits: avg((p) => p.liftUnits),
+      totalUnits: avg((p) => p.totalUnits),
+      invUnits: avg((p) => p.invUnits),
+      msrp: avg((p) => p.msrp),
+      sp: wAvg((p) => p.sp),
+      sellingPrice: wAvg((p) => p.sellingPrice),
+      auc: avg((p) => p.auc),
+      costPrice: avg((p) => p.costPrice),
+      discountPct: wAvg((p) => p.discountPct),
+      plannedDiscountPct: wAvg((p) => p.plannedDiscountPct),
+      offsetLabel: `${offsetOf(items[0])} → ${offsetOf(last)}`,
+      spanWeeks: items.length,
+    };
+  };
+
+  const past = series.filter((p) => p.week < 0);
+  const pivot = series.filter((p) => p.week === 0);
+  const fwd = series.filter((p) => p.week > 0);
+
+  const pastBuckets: HistoryPoint[][] = [];
+  for (let end = past.length; end > 0; end -= width) {
+    pastBuckets.unshift(past.slice(Math.max(0, end - width), end));
+  }
+  const fwdBuckets: HistoryPoint[][] = [];
+  for (let i = 0; i < fwd.length; i += width) {
+    fwdBuckets.push(fwd.slice(i, i + width));
+  }
+
+  const out = [
+    ...pastBuckets.filter((b) => b.length).map(roll),
+    ...pivot.map((p) => ({
+      ...p,
+      offsetLabel: offsetOf(p),
+      spanWeeks: 1,
+    })),
+    ...fwdBuckets.filter((b) => b.length).map(roll),
+  ];
+
+  return out.map((p, i) => ({ ...p, label: `${unit} ${i + 1}` }));
+}
+
+export { STRATEGY_WEEKS, PCD_WEEKS };
 
 // Format helpers
 export function formatMoney(v: number): string {

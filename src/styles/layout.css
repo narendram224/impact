@@ -1293,7 +1293,8 @@ select.sel:focus {
 .scatter-cell .ia-select-main-container-v3:has([aria-expanded='true']),
 .hist-pill-row .ia-select-main-container-v3:has([aria-expanded='true']),
 .chart-toolbar .ia-select-main-container-v3:has([aria-expanded='true']) {
-  z-index: 20;
+  /* Above siblings so the open menu is not covered by the next chart cell */
+  z-index: 40;
 }
 
 .scatter-cell .ia-select-styled-dropdown-main-button,
@@ -1304,10 +1305,26 @@ select.sel:focus {
   box-sizing: border-box;
 }
 
+/*
+ * Impact UI menu defaults to z-index 99999; blanket is 9998.
+ * Keep the menu above the blanket, and let the blanket ignore pointer events
+ * so option clicks are never intercepted (outside-click still closes via
+ * isCloseWhenClickOutside / useClickOutside). Avoid withPortal in toolbars —
+ * portal + window.scrollY leaves a large gap under the trigger.
+ */
 .scatter-cell .ia-select-container-v3-styled-menu,
 .hist-pill-row .ia-select-container-v3-styled-menu,
 .chart-toolbar .ia-select-container-v3-styled-menu {
-  z-index: 30;
+  z-index: 100000 !important;
+  pointer-events: auto;
+  /* Impact UI already offsets via top/bottom; kill the default 4px margin gap */
+  margin-top: 0 !important;
+}
+
+.scatter-cell .ia-select-container-v3-blanket,
+.hist-pill-row .ia-select-container-v3-blanket,
+.chart-toolbar .ia-select-container-v3-blanket {
+  pointer-events: none;
 }
 
 .hist-pill-row .ia-styles.ia-btn.has-filter-dot {
@@ -1359,3 +1376,4 @@ select.sel:focus {
     grid-template-columns: 1fr;
   }
 }
+

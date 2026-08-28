@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Select } from 'impact-ui';
 
 export interface ImpactSelectOption {
@@ -6,14 +6,24 @@ export interface ImpactSelectOption {
   value: string;
 }
 
-/** Matches Impact UI SelectOption (value may be string | number). */
+/** Matches Impact UI SelectOption (label + value). */
 type UiSelectOption = {
   label: string;
   value: string | number;
 };
 
-function toUiOptions(options: ImpactSelectOption[]): UiSelectOption[] {
+function toSelectOptions(options: ImpactSelectOption[]): UiSelectOption[] {
+  // Always clone — Impact UI requires initialOptions and currentOptions to be
+  // two different state values (see Select docs / stories).
   return options.map((o) => ({ label: o.label, value: o.value }));
+}
+
+function findOption(
+  options: ImpactSelectOption[],
+  value: string
+): UiSelectOption | null {
+  const match = options.find((o) => o.value === value);
+  return match ? { label: match.label, value: match.value } : null;
 }
 
 interface ImpactSelectProps {
@@ -29,16 +39,24 @@ interface ImpactSelectProps {
   isDisabled?: boolean;
   isWithSearch?: boolean;
   /**
-   * Portal the menu to document.body. Off by default — portal + absolute
-   * positioning scrolls the page when opening inside long scrollable layouts.
+   * Portal to document.body. Prefer false in scrollable chart toolbars —
+   * Impact UI portal positioning adds window.scrollY and leaves a large gap.
+   * Clicks work without portal as long as menu z-index stays above the blanket
+   * (see layout.css). Set true only when a parent clips overflow.
    */
   withPortal?: boolean;
+  /** Prefer `top` in chart toolbars so the list stays on-screen above the chart. */
+  dropdownPosition?: 'top' | 'bottom';
   'data-testid'?: string;
 }
 
 /**
  * Controlled single-select wrapper around Impact UI Select.
- * Impact Select requires isOpen/setIsOpen, dual option lists, and selectedOptions state.
+ *
+ * Follows the official Impact UI pattern from Select.stories + AdvanceSearchModalItem:
+ * - isOpen / setIsOpen
+ * - initialOptions + currentOptions as *separate* state (do not share one array)
+ * - selectedOptions as SelectOption | null, updated via setSelectedOptions
  */
 export function ImpactSelect({
   label,
@@ -51,47 +69,49 @@ export function ImpactSelect({
   isDisabled = false,
   isWithSearch = false,
   withPortal = false,
+  dropdownPosition,
   'data-testid': dataTestId,
 }: ImpactSelectProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [currentOptions, setCurrentOptions] = useState<UiSelectOption[]>(() =>
-    toUiOptions(options)
-  );
-
-  // Impact Select applies `width: minWidth` on the outer container but uses the
-  // `width` prop on the trigger. Passing width="auto" lets the trigger grow past
-  // the container and overlap siblings — keep them equal.
   const resolvedWidth = width ?? minWidth;
 
-  const selected = useMemo(() => {
-    return options.find((o) => o.value === value) ?? options[0] ?? null;
-  }, [options, value]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [initialOptions, setInitialOptions] = useState<UiSelectOption[]>(() =>
+    toSelectOptions(options)
+  );
+  const [currentOptions, setCurrentOptions] = useState<UiSelectOption[]>(() =>
+    toSelectOptions(options)
+  );
+  const [selectedOptions, setSelectedOptions] = useState<UiSelectOption | null>(
+    () => findOption(options, value)
+  );
 
-  // Keep option lists in sync when parent options change (e.g. mutual-exclusion on axes)
+  // Keep option lists in sync when parent options change (e.g. axis mutual exclusion).
   useEffect(() => {
-    setCurrentOptions(toUiOptions(options));
+    const next = toSelectOptions(options);
+    setInitialOptions(next);
+    setCurrentOptions(next);
   }, [options]);
+
+  // Keep selection in sync with the controlled value.
+  useEffect(() => {
+    setSelectedOptions(findOption(options, value));
+  }, [options, value]);
 
   return (
     <Select
       label={label}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
-      initialOptions={toUiOptions(options)}
+      initialOptions={initialOptions}
       currentOptions={currentOptions}
-      setCurrentOptions={(opts) => setCurrentOptions(opts as UiSelectOption[])}
-      selectedOptions={selected}
-      setSelectedOptions={(opts) => {
-        if (!opts) return;
-        const next = Array.isArray(opts) ? opts[0] : opts;
-        if (next?.value != null) onChange(String(next.value));
-      }}
-      handleChange={(opts) => {
-        if (!opts) return;
-        const next = Array.isArray(opts) ? opts[0] : opts;
-        if (next?.value != null) {
+      setCurrentOptions={setCurrentOptions}
+      selectedOptions={selectedOptions ?? []}
+      setSelectedOptions={(option) => {
+        // Single-select: Impact UI passes a SelectOption object (see Select.test).
+        const next = Array.isArray(option) ? (option[0] ?? null) : option;
+        setSelectedOptions(next);
+        if (next?.value != null && String(next.value) !== String(value)) {
           onChange(String(next.value));
-          setIsOpen(false);
         }
       }}
       placeholder={placeholder}
@@ -101,7 +121,7 @@ export function ImpactSelect({
       isWithSearch={isWithSearch}
       isCloseWhenClickOutside
       withPortal={withPortal}
-      dropdownPosition="bottom"
+      dropdownPosition={dropdownPosition}
       data-testid={dataTestId}
     />
   );
@@ -122,6 +142,7 @@ interface ImpactMultiSelectProps {
 
 /**
  * Controlled multi-select wrapper around Impact UI Select.
+ * selectedOptions is always SelectOption[] in multi mode.
  */
 export function ImpactMultiSelect({
   label,
@@ -135,23 +156,32 @@ export function ImpactMultiSelect({
   withPortal = false,
   'data-testid': dataTestId,
 }: ImpactMultiSelectProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [currentOptions, setCurrentOptions] = useState<UiSelectOption[]>(() =>
-    toUiOptions(options)
-  );
-  const [isSelectAll, setIsSelectAll] = useState(false);
   const resolvedWidth = width ?? minWidth;
 
-  const selected = useMemo(
-    () => options.filter((o) => values.includes(o.value)),
-    [options, values]
+  const [isOpen, setIsOpen] = useState(false);
+  const [initialOptions, setInitialOptions] = useState<UiSelectOption[]>(() =>
+    toSelectOptions(options)
+  );
+  const [currentOptions, setCurrentOptions] = useState<UiSelectOption[]>(() =>
+    toSelectOptions(options)
+  );
+  const [selectedOptions, setSelectedOptions] = useState<UiSelectOption[]>(() =>
+    toSelectOptions(options.filter((o) => values.includes(o.value)))
+  );
+  const [isSelectAll, setIsSelectAll] = useState(
+    () => options.length > 0 && values.length === options.length
   );
 
   useEffect(() => {
-    setCurrentOptions(toUiOptions(options));
+    const next = toSelectOptions(options);
+    setInitialOptions(next);
+    setCurrentOptions(next);
   }, [options]);
 
   useEffect(() => {
+    setSelectedOptions(
+      toSelectOptions(options.filter((o) => values.includes(o.value)))
+    );
     setIsSelectAll(options.length > 0 && values.length === options.length);
   }, [options, values]);
 
@@ -160,16 +190,13 @@ export function ImpactMultiSelect({
       label={label}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
-      initialOptions={toUiOptions(options)}
+      initialOptions={initialOptions}
       currentOptions={currentOptions}
-      setCurrentOptions={(opts) => setCurrentOptions(opts as UiSelectOption[])}
-      selectedOptions={selected}
-      setSelectedOptions={(opts) => {
-        const list = !opts ? [] : Array.isArray(opts) ? opts : [opts];
-        onChange(list.map((o) => String(o.value)));
-      }}
-      handleChange={(opts) => {
-        const list = !opts ? [] : Array.isArray(opts) ? opts : [opts];
+      setCurrentOptions={setCurrentOptions}
+      selectedOptions={selectedOptions}
+      setSelectedOptions={(option) => {
+        const list = !option ? [] : Array.isArray(option) ? option : [option];
+        setSelectedOptions(list);
         onChange(list.map((o) => String(o.value)));
       }}
       isMulti
@@ -183,7 +210,6 @@ export function ImpactMultiSelect({
       isDisabled={isDisabled}
       isCloseWhenClickOutside
       withPortal={withPortal}
-      dropdownPosition="bottom"
       data-testid={dataTestId}
     />
   );
